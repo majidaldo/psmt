@@ -1,3 +1,31 @@
+
+##Author: Majid al-Dosari
+#Copyright (c) 2010, Majid al-Dosari
+#All rights reserved.
+#
+#Redistribution and use in source and binary forms, with or without
+#modification, are permitted provided that the following conditions are met:
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#    * Neither the name of the <organization> nor the
+#      names of its contributors may be used to endorse or promote products
+#      derived from this software without specific prior written permission.
+#
+#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+#ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+#DISCLAIMED. IN NO EVENT SHALL <COPYRIGHT HOLDER> BE LIABLE FOR ANY
+#DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+#LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+#ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+#(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+#SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+
 #todo: add a special fnc that saves a certain depth of an input dict
 #    for every item to save, see if nested
 
@@ -212,9 +240,12 @@ class fsdictseq(collections.MutableMapping): #useless
 
 #import rpdb2; rpdb2.start_embedded_debugger("wtfiswrong",fAllowRemote = True)
 
+#description for another dictlike object (derived?) that can recurse
+#see note in __getitem
+#more dict-like but does not give KeyErrors so always check for a key
+#    explicitly if you need to. todo how to give key error?
 class fsdict(collections.MutableMapping):
-    """more dict-like but does not give KeyErrors so always check for a key
-    explicitly if you need to
+    """dict behavior for stuff on the fs
     can init w/ a dict
     options: proto=pickle protocol no. if def. it's just passed to pickle
     """
@@ -233,7 +264,7 @@ class fsdict(collections.MutableMapping):
         self.update(kwargs)
         return
     
-    def supposedpath(self,k,datafilename='po',root=False):
+    def supposedpath(self,k,datafilename='po'):#,root=False):
         fd=self.folder
         try: k=str(k)
         except: KeyError
@@ -249,7 +280,7 @@ class fsdict(collections.MutableMapping):
         try:
             self.__delitem__(k)
             #you get windowserror if you're have win explorer
-            #..on the file it's deleting :S
+            #..on the file its deleting :S
             os.makedirs(ex['dir'][0])
         except KeyError:
             os.makedirs(ex['dir'][0])
@@ -272,9 +303,13 @@ class fsdict(collections.MutableMapping):
         #writeback=self.kwargs['writeback']
         ex=self.pathinfo(k)
         if ex['dir'][1]==False:
-            #raise KeyError , 'dir does not exist'
-            #os.makedirs(ex['dir'][0])# is this good behavior?
-            return fsdict((ex['dir'][0])) #these 2 lines
+            raise KeyError ,'dir '+str(ex['dir'][0])+' does not exist' #the safer way
+            ####os.makedirs(ex['dir'][0])# is this good behavior?
+            #but i don't want it to make dirs just to access
+            #return fsdict((ex['dir'][0])) #these 2 lines# the cooler way
+            #why did i do this instead of keyerror?!?!
+            #a: b/c i depend on keyerror to go into the next nesting if the 
+            #dir doesn't exist so that i can access it
         elif False==ex['datafile'][1]: #todo is this good behaviour?
             return fsdict((ex['dir'][0]))
         else:
@@ -291,7 +326,7 @@ class fsdict(collections.MutableMapping):
         #val = self.getitem(k)
         ex=self.pathinfo(k)
         if False==ex['dir'][1]:# or False==ex['datafile'][1]:
-            raise KeyError , 'dir does not exist'
+            raise KeyError , 'dir '+str(ex['dir'][0])+' does not exist'
         else:
             shutil.rmtree(ex['dir'][0])
         return
@@ -308,7 +343,6 @@ class fsdict(collections.MutableMapping):
         return count
     
     #def setdefault(self):
-        
         
     def __repr__(self): #todo {} for file if no po
         return str(dict([(k,self[k]) for k in self.__iter__()]))
