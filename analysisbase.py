@@ -109,6 +109,12 @@ class analysis(object):
         self.data.savedata(k,data)
         #.. while being dynamic
         return
+        #list version
+#    def savedata(self,*args,**kwargs):
+#        try:
+#            self.savedata(*args,**kwargs)
+#        except:
+#            for 
         
         #needed?
     def loaddata(self,paramsortaskid,strkeyseq):
