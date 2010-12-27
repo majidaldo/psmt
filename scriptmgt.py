@@ -485,9 +485,40 @@ class batchfoldermgt(object): #input vars & varvals dict(var=val(s)) have order 
     def genparamlist(self,dictofiters):
         return [frozenset(zip(dictofiters.keys(),v)) \
             for v in itertools.product(*dictofiters.values())]
-    def createindexeddict(self,starti,dictofiters):
-        endic= dict(enumerate(self.genparamlist(dictofiters),start=starti))
-        return dict(zip(endic.values(),endic.keys()))
+#useless?
+#    def createindexeddict(self,starti,dictofiters):#todo index shoudl be the
+#        #runsi key
+#        endic= dict(enumerate(self.genparamlist(dictofiters),start=starti))
+#        return dict(zip(endic.values(),endic.keys()))
+    def alwaysreturntaskid1(self,taskidorparams):
+        try:#if params, returns taskid
+            return self.runsi[taskidorparams]
+        except:#if taskid, returns taskid
+            if  taskidorparams in self.runsi.values(): return taskidorparams
+            else: raise Exception, 'taskid not found'
+    def alwaysreturntaskid(self, taskidsorparamslist):
+        try:#if just one
+            return self.alwaysreturntaskid1(taskidsorparamslist)
+        except:#if more than one
+            return [self.alwaysreturntaskid1(atiorpl)\
+                for atiorpl in taskidsorparamslist ]
+    def alwaysreturnparams1(self,taskidorparams):
+        try:#if params, returns params
+            self.runsi[taskidorparams] #means it's a params
+            return taskidorparams
+        except:#if taskid, returns params
+            if  taskidorparams in self.runsi.values():
+                return self.lookupbytaskids([taskidorparams])[0]
+            else: raise Exception, 'taskid not found'
+    def alwaysreturnparams(self, taskidsorparamslist):
+        try:#if just one
+            return self.alwaysreturnparams1(taskidsorparamslist)
+        except:#if more than one
+            return [self.alwaysreturnparams1(atiorpl)\
+                for atiorpl in taskidsorparamslist ]
+    def getsubsetofrunsi(self,dictofiters):
+        subsetlist=self.user_getallparamswith(dictofiters)
+        return dict( ([(aps,self.runsi[aps]) for aps in subsetlist])  )
     def lookupbytaskids(self,taskids):
         runsirev=dict((v,k) for k, v in self.runsi.iteritems())
         return [(runsirev[ataskid]) for ataskid in taskids]
@@ -525,11 +556,16 @@ class batchfoldermgt(object): #input vars & varvals dict(var=val(s)) have order 
     #1. gen iterator -> put each iteration into ugetallparamswith
     #then decide whether to filter for or filter out
     
-    
-    def getvarvalues(self):
-        """returns all values of a variable"""
+
+    def getvarvalues(self,**kwargs):
+        """returns all values of a variable for a list of 
+        option: paramsortasklist=whatever params d.b..
+        defaults to self params dict (runsi, runs index)
+        """
         vd={}
-        for aps in self.runsi.keys():
+        paramslist=kwargs.setdefault('paramsortasklist',self.runsi.keys())
+        paramslist=self.alwaysreturnparams(paramslist)
+        for aps in paramslist:#paramsdict.keys():
             psd=dict(aps)
             for ap,itsval in psd.iteritems():
                 if ap not in vd.keys():
@@ -537,7 +573,20 @@ class batchfoldermgt(object): #input vars & varvals dict(var=val(s)) have order 
                 elif itsval not in vd[ap]:
                     vd[ap].append(itsval)
         return vd
-    def user_groupbyconsts(self,listofvars,varexclusionlist=None): #varexclusion useless?
+    def user_getranges(self,paramsortasklist):#todo low pri
+        #todo it would be cool if i could get backt the iterator(s)
+        #check all possible iters?        
+        
+        #to ans Q: what is the range of a var for any other var
+        byc=self.user_groupbyconsts()
+        
+        paramslist=self.alwaysreturnparams(paramsortasklist)
+        allpossible=self.genparamlist(self.getvarvalues(paramslist))
+        missing=frozenset(allpossible)-frozenset(paramslist)
+        #for each possible iter
+        pass
+    def user_groupbyconsts(self,listofvars,subsetdictofiters=None):
+        #,varexclusionlist=None): #varexclusion useless?
         """input list of variables. output[0]: 'legend'. output[1] variables
         that were constant across all parameter sets.
         gets parametersets of a 'varying' set of variables
@@ -550,20 +599,23 @@ class batchfoldermgt(object): #input vars & varvals dict(var=val(s)) have order 
         note: don't know how it would work w/ multiple var sets.
         but you shouldn't have multiple var sets anyway
         """
-        vd=self.getvarvalues()
+        if subsetdictofiters!=None:
+            vd=self.getvarvalues(paramslist=self.getsubsetofrunsi(subsetdictofiters))
+        else: vd=self.getvarvalues()
         if listofvars==type(str):
             listofvars=[listofvars]# to correct a mistake i make a lot
             print 'put in a LIST (of strings) for listofvars arg, ok?'
         othervars=frozenset(vd.keys())-frozenset(listofvars)
-        #todo: incl list?
-        if varexclusionlist!=None:
-            try:
-                xld=dict(zip(listofvars,varexclusionlist))
-                for avar,itsvals in xld.iteritems():
-                    try: vd[avar].remove(itsvals)
-                    except: pass
-            except:
-                raise ValueError, "exclusion list size must match var list size"
+#        #todo: replace this with list of exlusion dicts
+#        #this thing sucks
+#        if varexclusionlist!=None:
+#            try:
+#                xld=dict(zip(listofvars,varexclusionlist))
+#                for avar,itsvals in xld.iteritems():
+#                    try: vd[avar].remove(itsvals)
+#                    except: pass
+#            except:
+#                raise ValueError, "exclusion list size must match var list size"
                 
         othervaryingvars={};consts={}
         for aov in list(othervars):

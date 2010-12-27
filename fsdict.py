@@ -244,12 +244,21 @@ class fsdictseq(collections.MutableMapping): #useless
 #see note in __getitem
 #more dict-like but does not give KeyErrors so always check for a key
 #    explicitly if you need to. todo how to give key error?
+
+#Major question: should the indexing follow the folders of the object?
+#..line to add: if the obj retrieved is not type(self) fsdict
 class fsdict(collections.MutableMapping):
     """dict behavior for stuff on the fs
+    makes the (reasonable) assumption that if a folder name is a digit, it
+    is given back as an integer
+    caution: no keyerror is given if the object is not on the fs
     can init w/ a dict
     options: proto=pickle protocol no. if def. it's just passed to pickle
     """
     def __init__(self,*args,**kwargs):
+        """
+        1st arg needs to be a folder. the rest are dict args
+        """
         self.folder=args[0]
         #if not os.path.exists(self.folder): #i would like to keep this but
         #i couldn't
@@ -294,6 +303,7 @@ class fsdict(collections.MutableMapping):
         #s.close()
         return
     
+    
     def __contains__(self,k):
         if self.pathinfo(k)['dir'][1]==True: return True
         else: return False
@@ -303,15 +313,17 @@ class fsdict(collections.MutableMapping):
         #writeback=self.kwargs['writeback']
         ex=self.pathinfo(k)
         if ex['dir'][1]==False:
-            raise KeyError ,'dir '+str(ex['dir'][0])+' does not exist' #the safer way
+            #raise KeyError ,'dir '+str(ex['dir'][0])+' does not exist' #the safer way
             ####os.makedirs(ex['dir'][0])# is this good behavior?
             #but i don't want it to make dirs just to access
-            #return fsdict((ex['dir'][0])) #these 2 lines# the cooler way
+            
+            return fsdict((ex['dir'][0])) #these 2 lines# the cooler way
             #why did i do this instead of keyerror?!?!
             #a: b/c i depend on keyerror to go into the next nesting if the 
             #dir doesn't exist so that i can access it
         elif False==ex['datafile'][1]: #todo is this good behaviour?
-            return fsdict((ex['dir'][0]))
+            return fsdict((ex['dir'][0])) #raise an error of type NoFile
+            #or none?
         else:
             f=open(ex['datafile'][0],'r')
             obj=cPickle.load(f)
@@ -334,7 +346,9 @@ class fsdict(collections.MutableMapping):
     def __iter__(self):
         w=os.walk(self.folder)
         pi=w.next()
-        for i in pi[1]: yield i
+        for i in pi[1]:
+            if str.isdigit(i)==True: yield int(i)
+            else: yield i
         return
         
     def __len__(self):
@@ -346,9 +360,63 @@ class fsdict(collections.MutableMapping):
         
     def __repr__(self): #todo {} for file if no po
         return str(dict([(k,self[k]) for k in self.__iter__()]))
+
+#todo: wrap av around fsdict
+#todo make a fnc savedata and savedataorder doesn't matter
+class fsdb(fsdict):
+    """allows more db-like access to stuff on the fs"""
+    def keyseq2index(self,strkeyseq):
+        if type(strkeyseq)==str: strkeyseq=[strkeyseq]
+        stri=''
+        for ak in strkeyseq:
+            stri=stri+"["+"\'"+str(ak)+"\'"+']'
+        return stri
+    def savedata(self,strkeyseq,data):
+        """for cases when you don't know the data "foldering"(organization)
+        beforehand"""
+        if type(strkeyseq)==str: strkeyseq=[strkeyseq]
+        i=self.keyseq2index(strkeyseq)
+        exec('self'+i+'=data') #is this pythonic? idk another way
+        #while being dynamic        
         
+#        #a loop to make folders in case they don't exist
+#        foldering=[]
+#        strkeyseqi=iter(strkeyseq)
+#        while len(foldering)!=len(strkeyseq):
+#            taildir=strkeyseqi.next()
+#            foldering.append(taildir)
+#            i=self.keyseq2index(foldering)
+#            print i
+#            try: exec('self'+i)
+#            except KeyError:#make the folder
+#                previousfoldering=self.keyseq2index(foldering[:-1])
+#                #todo ..check ..__contains__(key)
+#                exec('self'+previousfoldering+'.update({taildir:{}})' )
+        return
+    def savedataset(self,strkeyseqlist,dataset):
+        """args should be same length"""
+        for astrkeyseq in strkeyseqlist:
+            for adata in dataset:
+                self.savedata(astrkeyseq,adata)
+        return
+    
+    def loaddata(self,strkeyseq):
+        if type(strkeyseq)==str: strkeyseq=[strkeyseq]
+        i=self.keyseq2index(strkeyseq)
+        return eval('self'+i) #is this pythonic? idk another way
+        #while being dynamic
+        
+        #nonsense
+#    def tryloaddata(self,strkeyseq):
+#        icombos=itertools.strkeyseq
+#        try
+#        yield
+#import itertools
+    
+
 #
-#dbtf="C:\\Users\\Majid\\Documents\\Academics\\tests"
-###fsdbt=fsdictseq(dbtf,sdf=3)
-#fsdbrt=fsdict(dbtf)
+dbtf="C:\\Users\\Majid\\Documents\\Academics\\tests"
+fsdbt=fsdb(dbtf)
+fsdbrt=fsdict(dbtf)
+
 #fsdbrt['asdf']=4

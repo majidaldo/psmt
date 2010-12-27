@@ -37,7 +37,7 @@
 
 import os
 import sys
-from fsdict import fsdict
+from fsdict import fsdb
 
 
 #base class for analysis
@@ -80,7 +80,7 @@ class analysis(object):
         analysisdir=os.path.join(self.batchobj.mydir,'analysis')
         self.kwargs.setdefault('dir',analysisdir)
         self.kwargs.setdefault('proto',-1)
-        self.data=fsdict(self.kwargs['dir'])
+        self.data=fsdb(self.kwargs['dir'])
         return
 
     def addparamsets(self,psl):
@@ -96,22 +96,27 @@ class analysis(object):
             stri=stri+"["+"\'"+str(ak)+"\'"+']'
         return stri
     
-    def savedata(self,params,strkeyseq,data): #todo list-ize
+    #todo put the following the following in fsdict? w/o the params thing
+    #then just tack on params for the analysisbase method
+    def savedata(self,paramsortaskid,strkeyseq,data): #todo list-ize
         #try len(param) to chk if data
         #perhaps flip this so that on the fs strkeyseq/taskid
         """for cases when you don't know the data "foldering"(organization)
         beforehand"""
         if type(strkeyseq)==str: strkeyseq=[strkeyseq]
-        i=self.keyseq2index(strkeyseq+[self.params[params]])
-        exec('self.data'+i+'=data') #is this pythonic? idk another way
+        ti=self.batchobj.alwaysreturntaskid1(paramsortaskid)
+        k=list(strkeyseq)+[ti]
+        self.data.savedata(k,data)
         #.. while being dynamic
         return
-    def loaddata(self,params,strkeyseq):
+        
+        #needed?
+    def loaddata(self,paramsortaskid,strkeyseq):
         """for cases when you don't know the data "foldering"(organization)
         beforehand"""
         if type(strkeyseq)==str: strkeyseq=[strkeyseq]
-        i=self.keyseq2index(strkeyseq+[self.params[params]])
-        return eval('self.data'+i) #is this pythonic? idk another way
-        #.. and be dynamic
+        ti=self.batchobj.alwaysreturntaskid1(paramsortaskid)
+        k=list(strkeyseq)+[ti]
+        return self.data.loaddata(k,data)
 
 
