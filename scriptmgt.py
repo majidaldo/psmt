@@ -589,18 +589,17 @@ class batchfoldermgt(object): #input vars & varvals dict(var=val(s)) have order 
         #,varexclusionlist=None): #varexclusion useless?
         """input list of variables. output[0]: 'legend'. output[1] variables
         that were constant across all parameter sets.
+        option: subsetdictofiters=.. to look at just a subset
         gets parametersets of a 'varying' set of variables
         paramlist returned. vars not in the arg will be returned w/ 
         respective consts.
-        no. of sets always = no. avail?
-        this is a high-level fn.
         usage scenario: multiple plots on the same plot. ie. plots w/ a legend
         
         note: don't know how it would work w/ multiple var sets.
         but you shouldn't have multiple var sets anyway
         """
         if subsetdictofiters!=None:
-            vd=self.getvarvalues(paramslist=self.getsubsetofrunsi(subsetdictofiters))
+            vd=self.getvarvalues(paramsortasklist=self.getsubsetofrunsi(subsetdictofiters))
         else: vd=self.getvarvalues()
         if listofvars==type(str):
             listofvars=[listofvars]# to correct a mistake i make a lot
