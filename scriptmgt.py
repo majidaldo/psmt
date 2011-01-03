@@ -373,21 +373,25 @@ class batchfoldermgt(object): #input vars & varvals dict(var=val(s)) have order 
             self._gentaskfolder(taskidparams,ataskid,listofscriptstosave)
         self.savemyself()
         return taskids
-    def user_regenbytaskid(self,taskids,**kwargs):
-        """by def. overwrites
+    def user_regen(self,paramslistortaskids,**kwargs):
+        """by def. overwrites. same kwargs as user_gentaskarray
         if you need to delete a folder's contents, use user_deleteby... 
         w/ folder del option, then generate. this will force you to think about
         what you're doing
         """
+        taskids=self.alwaysreturntaskid(paramslistortaskids)
         self.kwargs.update(kwargs)
         scriptargs=self.kwargs['scriptargs']
         listofscriptstosave=self.kwargs['listofscriptstosave']
+
         
         paramsl=self.lookupbytaskids(taskids)
         for aparam in paramsl:
             aparam=dict(aparam)
             for k,v in aparam.iteritems(): aparam.update({k:[v]})
-            self.user_gentaskarray(aparam,scriptargs,listofscriptstosave,overwrite=True)
+            self.user_gentaskarray(aparam
+            ,scriptargs=scriptargs,listofscriptstosave=listofscriptstosave
+            ,overwrite=True)
         return paramsl
         
     def _remparams(self,dictofiters):
@@ -430,8 +434,9 @@ class batchfoldermgt(object): #input vars & varvals dict(var=val(s)) have order 
         self.savemyself()
         #print "deleted task ids: ", deletedtasks
         return deletedtasks
-    def user_deletebytaskids(self,taskids,deletefolders=False):
+    def user_delete(self,paramslistortaskids,deletefolders=False):
         """make sure you kill associated processes!"""
+        taskids=self.alwaysreturntaskid(paramslistortaskids)
         runsirev=dict((v,k) for k, v in self.runsi.iteritems())
         taskidparams=[]
         for ataskid in taskids:

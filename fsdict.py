@@ -248,7 +248,7 @@ class fsdictseq(collections.MutableMapping): #useless
 #Major question: should the indexing follow the folders of the object?
 #..line to add: if the obj retrieved is not type(self) fsdict
 class fsdict(collections.MutableMapping):
-    """dict behavior for stuff on the fs
+    """dict behavior for stuff on the fs. each 'node' has EITHER data OR a branching
     makes the (reasonable) assumption that if a folder name is a digit, it
     is given back as an integer
     caution: no keyerror is given if the object is not on the fs
@@ -353,7 +353,7 @@ class fsdict(collections.MutableMapping):
         
     def __len__(self):
         count=0
-        for i in self.iter(): count+=1
+        for i in self.__iter__(): count+=1
         return count
     
     #def setdefault(self):
@@ -371,27 +371,29 @@ class fsdb(fsdict):
         for ak in strkeyseq:
             stri=stri+"["+"\'"+str(ak)+"\'"+']'
         return stri
-    def savedata(self,strkeyseq,data):
+    def savedata(self,strkeyseq,data,dictkeys2folders=False):#todo: option to unfold' data
+    #so that if data were a dict, then 'open it' and folder it
         """for cases when you don't know the data "foldering"(organization)
-        beforehand"""
+        beforehand
+        kw unwrapdict makes keys in a dict folders on the fs        
+        """
         if type(strkeyseq)==str: strkeyseq=[strkeyseq]
+        strkeyseq=list(strkeyseq)
         i=self.keyseq2index(strkeyseq)
-        exec('self'+i+'=data') #is this pythonic? idk another way
-        #while being dynamic        
-        
-#        #a loop to make folders in case they don't exist
-#        foldering=[]
-#        strkeyseqi=iter(strkeyseq)
-#        while len(foldering)!=len(strkeyseq):
-#            taildir=strkeyseqi.next()
-#            foldering.append(taildir)
-#            i=self.keyseq2index(foldering)
-#            print i
-#            try: exec('self'+i)
-#            except KeyError:#make the folder
-#                previousfoldering=self.keyseq2index(foldering[:-1])
-#                #todo ..check ..__contains__(key)
-#                exec('self'+previousfoldering+'.update({taildir:{}})' )
+        if dictkeys2folders==False:
+            exec('self'+i+'=data') #is this pythonic? idk another way
+        #while being dynamic
+            return
+        else:
+            try:#for each level of keys
+                ks=data.iterkeys()
+                for ak in ks:
+                    ks=strkeyseq+[str(ak)]
+                    self.savedata(ks,data[ak],dictkeys2folders=True) #i'm so smart
+            except:
+                #print i,data
+                self.pop(strkeyseq[0])
+                exec('self'+i+'=data')
         return
     def savedataset(self,strkeyseqlist,dataset):
         """args should be same length"""
@@ -412,11 +414,51 @@ class fsdb(fsdict):
 #        try
 #        yield
 #import itertools
+#def dictkeys2seq(adict):
+#    try:
+#        ks=adict.iterkeys()
+#        for ak in ks:#go deeper
+#            d=dictkeys2seq(adict[ak])
+#            ks=[ak]
+#            if d==0:#terminal
+#                print ks
+#            else:
+#                ks.append(ak)
+#                dictkeys2seq(adict[ak])
+#    except: return 0
+#            
+            
+#store branch, d
+#when hit term, copy series and go back to last branch
+#use iters?
+#class sequencer(object):
+#    def __init__(self):
+#        self.seq=[]
+#        return
+#    def addbranch(k): self.seq.append((k,'b'))
+#    def add
+#    def term():
+#        return 
     
+    
+def dictkeys2seq(adict):
+    level=0
+    def nesting(adict):
+        #level=level+1
+        try:
+            for ak in adict.iterkeys():#if fails, means not a branch
+                #aks.append(ak)            
+                dictkeys2seq(adict[ak])
+                print ak
+        except:
+            #level=level-1
+            print level        
+            return
+            #pass#print keyseq
+
+            
 
 #
 dbtf="C:\\Users\\Majid\\Documents\\Academics\\tests"
 fsdbt=fsdb(dbtf)
 fsdbrt=fsdict(dbtf)
-
-#fsdbrt['asdf']=4
