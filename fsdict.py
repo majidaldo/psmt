@@ -390,9 +390,10 @@ class fsdb(fsdict):
                 for ak in ks:
                     ks=strkeyseq+[str(ak)]
                     self.savedata(ks,data[ak],dictkeys2folders=True) #i'm so smart
-            except:
+            except:#comes here when no more nesting
                 #print i,data
-                self.pop(strkeyseq[0])
+                #self.__delitem__(strkeyseq[0]) #why did i put this line?
+                #print i,data
                 exec('self'+i+'=data')
         return
     def savedataset(self,strkeyseqlist,dataset):

@@ -98,7 +98,8 @@ class analysis(object):
     
     #todo put the following the following in fsdict? w/o the params thing
     #then just tack on params for the analysisbase method
-    def savedata(self,paramsortaskid,strkeyseq,data,dictkeys2folders=True): #todo list-ize
+    def savedata(self,paramsortaskid,strkeyseq,data
+        ,dictkeys2folders=True): #todo list-ize
         #try len(param) to chk if data
         #perhaps flip this so that on the fs strkeyseq/taskid
         """for cases when you don't know the data "foldering"(organization)
