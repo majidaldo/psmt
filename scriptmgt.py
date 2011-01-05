@@ -604,7 +604,7 @@ class batchfoldermgt(object): #input vars & varvals dict(var=val(s)) have order 
         but you shouldn't have multiple var sets anyway
         """
         if subsetdictofiters!=None:
-            vd=self.getvarvalues(paramsortasklist=self.getsubsetofrunsi(subsetdictofiters))
+            vd=self.getvarvalues(paramsortasklist=self.getsubsetofrunsi(subsetdictofiters).keys())
         else: vd=self.getvarvalues()
         if listofvars==type(str):
             listofvars=[listofvars]# to correct a mistake i make a lot
@@ -634,8 +634,11 @@ class batchfoldermgt(object): #input vars & varvals dict(var=val(s)) have order 
         for avi in vi:
             dc=dict(zip(vd.keys(),avi))
             dc=dict(  [ (k,[v]) for k,v in dc.iteritems() ] )
-            #^^put it in iters
-            paramlist=self.user_getallparamswith(dc) #list of sets
+            #have a subset of runsi before running the following line
+            if subsetdictofiters!=None:
+                paramlist=frozenset.intersection( frozenset(self.user_getallparamswith(dc)) \
+                        , frozenset(self.getsubsetofrunsi(subsetdictofiters).keys())  )  #list of sets
+            else: paramlist=self.user_getallparamswith(dc)
             if len(paramlist)>0:
                 for aparamset in paramlist:
                     #values of othervars in the paramset
