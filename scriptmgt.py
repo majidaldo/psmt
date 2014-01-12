@@ -186,8 +186,7 @@ class scripts(object):
         self.removetags()
         f=open(pathincfname,'w')
         f.write(scripttxt)
-        fd=f.fileno()
-        os.fchmod(fd,stat.S_IRWXU)
+        os.chmod(pathincfname,stat.S_IRWXU)
         f.close()
         return
 
