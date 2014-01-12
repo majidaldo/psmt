@@ -8,5 +8,5 @@ setup(name='psmt',
       author='Majid al-Dosari',
       author_email='majid.aldosari on google\'s email',
       url='https://github.com/majidaldo/psmt',
-      py_module=['analysisbase, fsdict,scriptmgt'],
+      py_modules=['analysisbase', 'fsdict','scriptmgt']
      )
