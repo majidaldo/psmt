@@ -20,7 +20,7 @@ The modules in this repo in general address the following separately:
 
 3. (The management of program execution is separate but related. In my case I dealt with the PBS resource manager on a cluster computer and made the 'pbsmgr' repo. But since execution environments vary, I did not make an effort to integrate it in this repo as a design decision.)
 
-In the most integrated workflow, 1, 2, and 3 work together. However, with this separation, you can just use 1, or 1 and 2, or 1, 2, and 3. #2 is useful if you use Python for your analysis.
+In the most integrated workflow, 1, 2, and 3 work together. However, with this separation, you can just use 1, (or just use 3,) or 1 and 2, or 1, 2, and 3. #2 is useful if you use Python for your analysis. 
 
 
 Install with just
