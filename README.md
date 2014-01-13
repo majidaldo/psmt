@@ -94,5 +94,5 @@ When you use the command again for some new values, you shouldn't add new parame
 In this case we only have one parameter set: a and b.
 
 
-to be continued
+to be continued..ok it  looks like i need to use some autodoc tool. even the simple tutorial is too long for a readme.
 
