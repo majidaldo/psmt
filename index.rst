@@ -11,6 +11,13 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
+   docs/simpletutorial
+
+.. include:: README.md
+
+.. automodule:: scriptmgt
+   :members:
+
 
 
 Indices and tables
