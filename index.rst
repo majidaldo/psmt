@@ -3,8 +3,6 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Computational Parameter Study Management's documentation!
-====================================================================
 
 Contents:
 
@@ -12,11 +10,9 @@ Contents:
    :maxdepth: 2
 
    docs/simpletutorial
+   
 
 .. include:: README.md
-
-.. automodule:: scriptmgt
-   :members:
 
 
 
