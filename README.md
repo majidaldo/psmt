@@ -1,6 +1,7 @@
 Computational Parameter Study Management Tool
 ====
 
+Motivation:
 http://msdresearch.blogspot.com/2012/01/parameter-study-management-with-python.html
 
 
@@ -30,3 +31,5 @@ Install with just
 
     python setup.py install
 
+(Working on) Documentation:
+http://python-tools-for-computational-parameter-study.readthedocs.org/
