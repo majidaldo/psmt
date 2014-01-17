@@ -1,17 +1,15 @@
-Simple Tutorial
+Simple Use Tutorial
 =======
 
 
 Workflow Setup
-====
+-----
 
 First, to make the best use of this code, you must parameterize/template and automate as much as possible your simulation script(s) (you can have a set of simulation scripts for a simulation run. A run is identified by parameter values for all parameters). This code is best for 'production' execution of simulations.
 
 Now typically these parameters are the numerical physical parameters that you are trying to study the effects of. But in the context of this code, you can be creative about 'parameters'. A parameter could be a snippet of code representing an input more complicated than just a number such as an equation. They could even be provenance information such as some code version number, a list of 'tags' that describe the simulation, or information about the computing environment such as CPU or compiler information. It could be any object but it should have a string representation if it needs to show up in your scripts.
 
 
-Simple Use Tutorial
-====
 1. Script Management
 ----
 Let's say numbercruncher.exe takes in two arguments, a and b, as command line arguments. You would make a 'script' that's just::
