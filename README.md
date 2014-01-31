@@ -33,3 +33,6 @@ Install with just
 
 (Working on) Documentation:
 http://python-tools-for-computational-parameter-study.readthedocs.org/
+
+Todo Cool Feature:
+- query the table with SQL
